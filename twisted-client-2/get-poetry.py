@@ -2,7 +2,8 @@
 
 # NOTE: This should not be used as the basis for production code.
 
-import datetime, optparse
+import datetime
+import optparse
 
 from twisted.internet.protocol import Protocol, ClientFactory
 
@@ -31,7 +32,7 @@ for that to work.
     _, addresses = parser.parse_args()
 
     if not addresses:
-        print parser.format_help()
+        print(parser.format_help())
         parser.exit()
 
     def parse_address(addr):
@@ -46,7 +47,7 @@ for that to work.
 
         return host, int(port)
 
-    return map(parse_address, addresses)
+    return list(map(parse_address, addresses))
 
 
 class PoetryProtocol(Protocol):
@@ -55,9 +56,9 @@ class PoetryProtocol(Protocol):
     task_num = 0
 
     def dataReceived(self, data):
-        self.poem += data
+        self.poem += data.decode()
         msg = 'Task %d: got %d bytes of poetry from %s'
-        print  msg % (self.task_num, len(data), self.transport.getPeer())
+        print(msg % (self.task_num, len(data), self.transport.getPeer()))
 
     def connectionLost(self, reason):
         self.poemReceived(self.poem)
@@ -70,11 +71,11 @@ class PoetryClientFactory(ClientFactory):
 
     task_num = 1
 
-    protocol = PoetryProtocol # tell base class what proto to build
+    protocol = PoetryProtocol  # tell base class what proto to build
 
     def __init__(self, poetry_count):
         self.poetry_count = poetry_count
-        self.poems = {} # task num -> poem
+        self.poems = {}  # task num -> poem
 
     def buildProtocol(self, address):
         proto = ClientFactory.buildProtocol(self, address)
@@ -95,10 +96,10 @@ class PoetryClientFactory(ClientFactory):
 
     def report(self):
         for i in self.poems:
-            print 'Task %d: %d bytes of poetry' % (i, len(self.poems[i]))
+            print('Task %d: %d bytes of poetry' % (i, len(self.poems[i])))
 
     def clientConnectionFailed(self, connector, reason):
-        print 'Failed to connect to:', connector.getDestination()
+        print('Failed to connect to:', connector.getDestination())
         self.poem_finished()
 
 
@@ -119,7 +120,7 @@ def poetry_main():
 
     elapsed = datetime.datetime.now() - start
 
-    print 'Got %d poems in %s' % (len(addresses), elapsed)
+    print('Got %d poems in %s' % (len(addresses), elapsed))
 
 
 if __name__ == '__main__':

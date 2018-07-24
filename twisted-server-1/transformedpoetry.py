@@ -47,11 +47,11 @@ class TransformService(object):
 class TransformProtocol(NetstringReceiver):
 
     def stringReceived(self, request):
-        if '.' not in request: # bad request
+        if b'.' not in request:  # bad request
             self.transport.loseConnection()
             return
 
-        xform_name, poem = request.split('.', 1)
+        xform_name, poem = request.split(b'.', 1)
 
         self.xformRequestReceived(xform_name, poem)
 
@@ -74,13 +74,13 @@ class TransformFactory(ServerFactory):
     def transform(self, xform_name, poem):
         thunk = getattr(self, 'xform_%s' % (xform_name,), None)
 
-        if thunk is None: # no such transform
+        if thunk is None:  # no such transform
             return None
 
         try:
             return thunk(poem)
         except:
-            return None # transform failed
+            return None  # transform failed
 
     def xform_cummingsify(self, poem):
         return self.service.cummingsify(poem)
@@ -98,7 +98,7 @@ def main():
     port = reactor.listenTCP(options.port or 0, factory,
                              interface=options.iface)
 
-    print 'Serving transforms on %s.' % (port.getHost(),)
+    print('Serving transforms on %s.' % (port.getHost(),))
 
     reactor.run()
 

@@ -70,7 +70,7 @@ class PoetryClientProtocol(Protocol):
     poem = ''
 
     def dataReceived(self, data):
-        self.poem += data
+        self.poem += data.decode()
 
     def connectionLost(self, reason):
         self.poemReceived(self.poem)
@@ -99,7 +99,7 @@ class PoetryClientFactory(ClientFactory):
 
 class ProxyService(object):
 
-    poem = None # the cached poem
+    poem = None  # the cached poem
 
     def __init__(self, host, port):
         self.host = host
@@ -107,10 +107,10 @@ class ProxyService(object):
 
     def get_poem(self):
         if self.poem is not None:
-            print 'Using cached poem.'
+            print('Using cached poem.')
             return self.poem
 
-        print 'Fetching poem from server.'
+        print('Fetching poem from server.')
         factory = PoetryClientFactory()
         factory.deferred.addCallback(self.set_poem)
         from twisted.internet import reactor
@@ -134,7 +134,7 @@ def main():
     port = reactor.listenTCP(options.port or 0, factory,
                              interface=options.iface)
 
-    print 'Proxying %s on %s.' % (server_addr, port.getHost())
+    print('Proxying %s on %s.' % (server_addr, port.getHost()))
 
     reactor.run()
 

@@ -1,12 +1,13 @@
 
 def my_generator():
-    print 'starting up'
+    print('starting up')
     yield 1
-    print "workin'"
+    print("workin'")
     yield 2
-    print "still workin'"
+    print("still workin'")
     yield 3
-    print 'done'
+    print('done')
+
 
 for n in my_generator():
-    print n
+    print(n)

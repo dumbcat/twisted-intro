@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import optparse, sys
+import optparse
+import sys
 
 from twisted.internet import defer
 from twisted.python.failure import Failure
@@ -11,7 +12,9 @@ A Deferred simulator. Use this to see how a particular
 set of callbacks and errbacks will fire in a deferred.\
 """
 
-class BadInput(Exception): pass
+
+class BadInput(Exception):
+    pass
 
 
 def parse_args():
@@ -32,10 +35,10 @@ class Screen(object):
     """An ascii screen."""
 
     def __init__(self):
-        self.pixels = {} # (x, y) -> char
+        self.pixels = {}  # (x, y) -> char
 
     def draw_char(self, x, y, char):
-        self.pixels[x,y] = char
+        self.pixels[x, y] = char
 
     def draw_horiz_line(self, x, y, width):
         for i in range(width):
@@ -63,11 +66,11 @@ class Screen(object):
 
         for y in range(height):
             for x in range(width):
-                s += self.pixels.get((x,y), ' ')
+                s += self.pixels.get((x, y), ' ')
             s += '\n'
 
         return s
-        
+
 
 class Callback(object):
     """
@@ -125,7 +128,7 @@ class Callback(object):
 
     def draw_text(self, screen, x, y, width, text):
         screen.draw_text(x + 1, y, text.center(width - 2))
-        
+
 
 class Deferred(object):
     """
@@ -139,8 +142,8 @@ class Deferred(object):
         assert pairs
         self.pairs = pairs
         self.callback_width = max([p[0].min_width for p in self.pairs] + [0])
-        self.callback_width = max([p[1].min_width for p in self.pairs]
-                                  + [self.callback_width])
+        self.callback_width = max(
+            [p[1].min_width for p in self.pairs] + [self.callback_width])
         self.width = self.callback_width * 2 + 2
         self.height = Callback.height * len(self.pairs)
         self.height += 3 * len(self.pairs[1:])
@@ -297,7 +300,7 @@ def get_next_pair():
             return Callback(cmd)
 
     try:
-        line = raw_input()
+        line = input()
     except EOFError:
         sys.exit()
 
@@ -320,59 +323,59 @@ def get_pairs():
     They are returned as Callback widgets.
     """
 
-    print """\
-Enter a list of callback/errback pairs in the form:
+    print("""\
+    Enter a list of callback/errback pairs in the form:
 
-  CALLBACK ERRBACK
+      CALLBACK ERRBACK
 
-Where CALLBACK and ERRBACK are one of:
+    Where CALLBACK and ERRBACK are one of:
 
-  return VALUE
-  fail VALUE
-  passthru
+      return VALUE
+      fail VALUE
+      passthru
 
-And where VALUE is a string of only letters and numbers (no spaces),
-no more than 6 characters long.
+    And where VALUE is a string of only letters and numbers (no spaces),
+    no more than 6 characters long.
 
-Each pair should be on a single line and you can abbreviate
-return/fail/passthru as r/f/p.
+    Each pair should be on a single line and you can abbreviate
+    return/fail/passthru as r/f/p.
 
-Examples:
+    Examples:
 
-  r good f bad  # callback returns 'good'
-                # and errback raises Exception('bad')
+      r good f bad  # callback returns 'good'
+                    # and errback raises Exception('bad')
 
-  f googly p    # callback raises Exception('googly')
-                # and errback passes its failure along
+      f googly p    # callback raises Exception('googly')
+                    # and errback passes its failure along
 
-Enter a blank line when you are done, and a diagram of the deferred
-will be printed next to the firing patterns for both the callback()
-and errback() methods. In the diagram, a value followed by '*' is
-really an Exception wrapped in a Failure, i.e:
+    Enter a blank line when you are done, and a diagram of the deferred
+    will be printed next to the firing patterns for both the callback()
+    and errback() methods. In the diagram, a value followed by '*' is
+    really an Exception wrapped in a Failure, i.e:
 
-  value* == Failure(Exception(value))
+      value* == Failure(Exception(value))
 
-You will want to make your terminal as wide as possible.
-"""
+    You will want to make your terminal as wide as possible.
+    """)
 
     pairs = []
 
     while True:
         try:
             pair = get_next_pair()
-        except BadInput, e:
-            print 'ERROR:', e
+        except BadInput as e:
+            print('ERROR:', e)
             continue
 
         if pair is None:
             if not pairs:
-                print 'You must enter at least one pair.'
+                print('You must enter at least one pair.')
                 continue
             else:
                 break
 
         pairs.append(pair)
-           
+
     return pairs
 
 
@@ -384,7 +387,7 @@ def draw_single_column(d, callback, errback):
 
     d.draw(screen, 0, 4)
 
-    print screen
+    print(screen)
 
     screen.clear()
 
@@ -393,7 +396,7 @@ def draw_single_column(d, callback, errback):
 
     callback.draw(screen, 0, 5)
 
-    print screen
+    print(screen)
 
     screen.clear()
 
@@ -402,7 +405,7 @@ def draw_single_column(d, callback, errback):
 
     errback.draw(screen, 0, 5)
 
-    print screen
+    print(screen)
 
 
 def draw_multi_column(d, callback, errback):
@@ -414,8 +417,10 @@ def draw_multi_column(d, callback, errback):
     screen.draw_text(d.width + 6, 0, 'd.callback(initial)'.center(d.width))
     screen.draw_text(d.width + 6, 1, '-------------------'.center(d.width))
 
-    screen.draw_text(2 * (d.width + 6), 0, 'd.errback(initial*)'.center(d.width))
-    screen.draw_text(2 * (d.width + 6), 1, '-------------------'.center(d.width))
+    screen.draw_text(2 * (d.width + 6), 0,
+                     'd.errback(initial*)'.center(d.width))
+    screen.draw_text(2 * (d.width + 6), 1,
+                     '-------------------'.center(d.width))
 
     d.draw(screen, 0, callback.callback_y_offset + 3)
     callback.draw(screen, d.width + 6, 3)
@@ -424,7 +429,7 @@ def draw_multi_column(d, callback, errback):
     screen.draw_vert_line(d.width + 3, 3, callback.height)
     screen.draw_vert_line(d.width + 3 + d.width + 6, 3, callback.height)
 
-    print screen
+    print(screen)
 
 
 def main():

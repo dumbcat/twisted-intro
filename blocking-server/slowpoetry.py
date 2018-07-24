@@ -1,6 +1,9 @@
 # This is the blocking version of the Slow Poetry Server.
 
-import optparse, os, socket, time
+import optparse
+import os
+import socket
+import time
 
 
 def parse_args():
@@ -28,7 +31,7 @@ to serve up John Donne's Ecstasy, which I know you want to do.
     parser.add_option('--iface', help=help, default='localhost')
 
     help = "The number of seconds between sending bytes."
-    parser.add_option('--delay', type='float', help=help, default=.7)
+    parser.add_option('--delay', type='float', help=help, default=.1)
 
     help = "The number of bytes to send at a time."
     parser.add_option('--num-bytes', type='int', help=help, default=10)
@@ -54,15 +57,15 @@ def send_poetry(sock, poetry_file, num_bytes, delay):
     while True:
         bytes = inputf.read(num_bytes)
 
-        if not bytes: # no more poetry :(
+        if not bytes:  # no more poetry :(
             sock.close()
             inputf.close()
             return
 
-        print 'Sending %d bytes' % len(bytes)
+        print('Sending %d bytes' % len(bytes))
 
         try:
-            sock.sendall(bytes) # this is a blocking call
+            sock.sendall(bytes.encode())  # this is a blocking call
         except socket.error:
             sock.close()
             inputf.close()
@@ -75,13 +78,13 @@ def serve(listen_socket, poetry_file, num_bytes, delay):
     while True:
         sock, addr = listen_socket.accept()
 
-        print 'Somebody at %s wants poetry!' % (addr,)
+        print('Somebody at %s wants poetry!' % (addr,))
 
         send_poetry(sock, poetry_file, num_bytes, delay)
 
 
 def main():
-    options, poetry_file= parse_args()
+    options, poetry_file = parse_args()
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -89,7 +92,7 @@ def main():
 
     sock.listen(5)
 
-    print 'Serving %s on port %s.' % (poetry_file, sock.getsockname()[1])
+    print('Serving %s on port %s.' % (poetry_file, sock.getsockname()[1]))
 
     serve(sock, poetry_file, options.num_bytes, options.delay)
 

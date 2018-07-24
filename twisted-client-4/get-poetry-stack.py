@@ -1,6 +1,9 @@
 # This is the Twisted Get Poetry Now! client, version 4.0, with stacktrace.
 
-import optparse, os, sys, traceback
+import optparse
+import os
+import sys
+import traceback
 
 from twisted.internet import defer
 from twisted.internet.protocol import Protocol, ClientFactory
@@ -30,7 +33,7 @@ gets the first poem.
     _, addresses = parser.parse_args()
 
     if not addresses:
-        print parser.format_help()
+        print(parser.format_help())
         parser.exit()
 
     def parse_address(addr):
@@ -45,7 +48,7 @@ gets the first poem.
 
         return host, int(port)
 
-    return map(parse_address, addresses)
+    return list(map(parse_address, addresses))
 
 
 class PoetryProtocol(Protocol):
@@ -53,7 +56,7 @@ class PoetryProtocol(Protocol):
     poem = ''
 
     def dataReceived(self, data):
-        self.poem += data
+        self.poem += data.decode()
 
     def connectionLost(self, reason):
         self.poemReceived(self.poem)
@@ -106,7 +109,7 @@ def poetry_main():
         os._exit(0)
 
     def poem_failed(err):
-        print >>sys.stderr, 'Poem failed:', err
+        print('Poem failed:', err, file=sys.stderr)
         errors.append(err)
 
     def poem_done(_):
@@ -122,7 +125,7 @@ def poetry_main():
     reactor.run()
 
     for poem in poems:
-        print poem
+        print(poem)
 
 
 if __name__ == '__main__':

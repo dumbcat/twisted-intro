@@ -7,18 +7,20 @@ from twisted.trial.unittest import TestCase
 # But to make the examples self-contained, we're just
 # copying them here, with a few modifications.
 
+
 class PoetryServerProtocol(Protocol):
 
     def connectionMade(self):
         self.transport.write(self.factory.poem)
         self.transport.loseConnection()
 
+
 class PoetryServerFactory(ServerFactory):
 
     protocol = PoetryServerProtocol
 
     def __init__(self, poem):
-        self.poem = poem
+        self.poem = poem.encode()
 
 
 class PoetryClientProtocol(Protocol):
@@ -26,7 +28,7 @@ class PoetryClientProtocol(Protocol):
     poem = ''
 
     def dataReceived(self, data):
-        self.poem += data
+        self.poem += data.decode()
 
     def connectionLost(self, reason):
         self.poemReceived(self.poem)

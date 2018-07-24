@@ -1,6 +1,7 @@
 # This is the Twisted Get Poetry Now! client, version 6.0
 
-import optparse, sys
+import optparse
+import sys
 
 from twisted.internet import defer
 from twisted.internet.protocol import Protocol, ClientFactory
@@ -32,7 +33,7 @@ ports for that to work.
     _, addresses = parser.parse_args()
 
     if len(addresses) < 2:
-        print parser.format_help()
+        print(parser.format_help())
         parser.exit()
 
     def parse_address(addr):
@@ -47,7 +48,7 @@ ports for that to work.
 
         return host, int(port)
 
-    return map(parse_address, addresses)
+    return list(map(parse_address, addresses))
 
 
 class PoetryProtocol(Protocol):
@@ -55,7 +56,7 @@ class PoetryProtocol(Protocol):
     poem = ''
 
     def dataReceived(self, data):
-        self.poem += data
+        self.poem += data.decode()
 
     def connectionLost(self, reason):
         self.poemReceived(self.poem)
@@ -88,7 +89,7 @@ class TransformClientProtocol(NetstringReceiver):
         self.sendRequest(self.factory.xform_name, self.factory.poem)
 
     def sendRequest(self, xform_name, poem):
-        self.sendString(xform_name + '.' + poem)
+        self.sendString((xform_name + '.' + poem).encode())
 
     def stringReceived(self, s):
         self.transport.loseConnection()
@@ -164,17 +165,17 @@ def poetry_main():
         d = proxy.xform('cummingsify', poem)
 
         def fail(err):
-            print >>sys.stderr, 'Cummingsify failed!'
+            print('Cummingsify failed!', file=sys.stderr)
             return poem
 
         return d.addErrback(fail)
 
     def got_poem(poem):
-        print poem
+        print(poem)
         poems.append(poem)
 
     def poem_failed(err):
-        print >>sys.stderr, 'The poem download failed.'
+        print('The poem download failed.', file=sys.stderr)
         errors.append(err)
 
     def poem_done(_):

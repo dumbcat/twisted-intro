@@ -1,7 +1,7 @@
 # This is the Twisted Fast Poetry Server, version 3.0
 
-from zope.interface import implements
-
+# from zope.interface import implements
+from zope.interface import implementer
 from twisted.python import usage, log
 from twisted.plugin import IPlugin
 from twisted.internet.protocol import ServerFactory, Protocol
@@ -13,7 +13,7 @@ from twisted.application import internet, service
 class PoetryProtocol(Protocol):
 
     def connectionMade(self):
-        poem = self.factory.service.poem
+        poem = self.factory.service.poem.encode()
         log.msg('sending %d bytes of poetry to %s'
                 % (len(poem), self.transport.getPeer()))
         self.transport.write(poem)
@@ -48,14 +48,14 @@ class Options(usage.Options):
         ['port', 'p', 10000, 'The port number to listen on.'],
         ['poem', None, None, 'The file containing the poem.'],
         ['iface', None, 'localhost', 'The interface to listen on.'],
-        ]
+    ]
 
 # Now we define our 'service maker', an object which knows
 # how to construct our service.
 
-class PoetryServiceMaker(object):
 
-    implements(service.IServiceMaker, IPlugin)
+@implementer(service.IServiceMaker, IPlugin)
+class PoetryServiceMaker(object):
 
     tapname = "fastpoetry"
     description = "A fast poetry service."
@@ -68,8 +68,8 @@ class PoetryServiceMaker(object):
         poetry_service.setServiceParent(top_service)
 
         factory = PoetryFactory(poetry_service)
-        tcp_service = internet.TCPServer(int(options['port']), factory,
-                                         interface=options['iface'])
+        tcp_service = internet.TCPServer(
+            int(options['port']), factory, interface=options['iface'])
         tcp_service.setServiceParent(top_service)
 
         return top_service
@@ -77,5 +77,6 @@ class PoetryServiceMaker(object):
 # This variable name is irrelevent. What matters is that
 # instances of PoetryServiceMaker implement IServiceMaker
 # and IPlugin.
+
 
 service_maker = PoetryServiceMaker()

@@ -3,7 +3,10 @@
 # NOTE: This should not be used as the basis for production code.
 # It uses low-level Twisted APIs as a learning exercise.
 
-import datetime, errno, optparse, socket
+import datetime
+import errno
+import optparse
+import socket
 
 from twisted.internet import main
 
@@ -32,7 +35,7 @@ for that to work.
     _, addresses = parser.parse_args()
 
     if not addresses:
-        print parser.format_help()
+        print(parser.format_help())
         parser.exit()
 
     def parse_address(addr):
@@ -47,7 +50,7 @@ for that to work.
 
         return host, int(port)
 
-    return map(parse_address, addresses)
+    return list(map(parse_address, addresses))
 
 
 class PoetrySocket(object):
@@ -83,7 +86,7 @@ class PoetrySocket(object):
             if isinstance(reader, PoetrySocket):
                 return
 
-        reactor.stop() # no more poetry
+        reactor.stop()  # no more poetry
 
     def doRead(self):
         bytes = ''
@@ -94,18 +97,18 @@ class PoetrySocket(object):
                 if not bytesread:
                     break
                 else:
-                    bytes += bytesread
-            except socket.error, e:
+                    bytes += bytesread.decode()
+            except socket.error as e:
                 if e.args[0] == errno.EWOULDBLOCK:
                     break
                 return main.CONNECTION_LOST
 
         if not bytes:
-            print 'Task %d finished' % self.task_num
+            print('Task %d finished' % self.task_num)
             return main.CONNECTION_DONE
         else:
             msg = 'Task %d: got %d bytes of poetry from %s'
-            print  msg % (self.task_num, len(bytes), self.format_addr())
+            print(msg % (self.task_num, len(bytes), self.format_addr()))
 
         self.poem += bytes
 
@@ -130,9 +133,9 @@ def poetry_main():
     elapsed = datetime.datetime.now() - start
 
     for i, sock in enumerate(sockets):
-        print 'Task %d: %d bytes of poetry' % (i + 1, len(sock.poem))
+        print('Task %d: %d bytes of poetry' % (i + 1, len(sock.poem)))
 
-    print 'Got %d poems in %s' % (len(addresses), elapsed)
+    print('Got %d poems in %s' % (len(addresses), elapsed))
 
 
 if __name__ == '__main__':

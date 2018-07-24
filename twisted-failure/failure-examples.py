@@ -3,10 +3,12 @@
 
 from twisted.python.failure import Failure
 
-class RhymeSchemeViolation(Exception): pass
+
+class RhymeSchemeViolation(Exception):
+    pass
 
 
-print 'Just making an exception:'
+print('Just making an exception:')
 print
 
 e = RhymeSchemeViolation()
@@ -14,16 +16,18 @@ e = RhymeSchemeViolation()
 failure = Failure(e)
 
 # Note this failure doesn't include any traceback info
-print failure
+print(failure)
 
 print
 print
 
-print 'Catching an exception:'
+print('Catching an exception:')
 print
+
 
 def analyze_poem(poem):
     raise RhymeSchemeViolation()
+
 
 try:
     analyze_poem("""\
@@ -37,4 +41,4 @@ except:
 
 
 # This failure saved both the exception and the traceback
-print failure
+print(failure)

@@ -1,6 +1,8 @@
 # This is the Twisted Get Poetry Now! client, version 5.1
 
-import optparse, random, sys
+import optparse
+import random
+import sys
 
 from twisted.internet import defer
 from twisted.internet.protocol import Protocol, ClientFactory
@@ -30,7 +32,7 @@ for that to work.
     _, addresses = parser.parse_args()
 
     if not addresses:
-        print parser.format_help()
+        print(parser.format_help())
         parser.exit()
 
     def parse_address(addr):
@@ -45,7 +47,7 @@ for that to work.
 
         return host, int(port)
 
-    return map(parse_address, addresses)
+    return list(map(parse_address, addresses))
 
 
 class PoetryProtocol(Protocol):
@@ -53,7 +55,7 @@ class PoetryProtocol(Protocol):
     poem = ''
 
     def dataReceived(self, data):
-        self.poem += data
+        self.poem += data.decode()
 
     def connectionLost(self, reason):
         self.poemReceived(self.poem)
@@ -93,9 +95,13 @@ def get_poetry(host, port):
     return d
 
 
-class GibberishError(Exception): pass
+class GibberishError(Exception):
+    pass
 
-class CannotCummingsify(Exception): pass
+
+class CannotCummingsify(Exception):
+    pass
+
 
 def cummingsify(poem):
     """
@@ -129,16 +135,16 @@ def poetry_main():
 
     def cummingsify_failed(err):
         if err.check(CannotCummingsify):
-            print 'Cummingsify failed!'
+            print('Cummingsify failed!')
             return err.value.args[0]
         return err
 
     def got_poem(poem):
-        print poem
+        print(poem)
         poems.append(poem)
 
     def poem_failed(err):
-        print >>sys.stderr, 'The poem download failed.'
+        print('The poem download failed.', file=sys.stderr)
         errors.append(err)
 
     def poem_done(_):

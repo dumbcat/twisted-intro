@@ -1,19 +1,20 @@
 
 def my_generator():
-    print 'starting up'
+    print('starting up')
     yield 1
-    print "workin'"
+    print("workin'")
     yield 2
-    print "still workin'"
+    print("still workin'")
     yield 3
-    print 'done'
+    print('done')
+
 
 gen = my_generator()
 
 while True:
     try:
-        n = gen.next()
+        n = gen.__next__()
     except StopIteration:
         break
     else:
-        print n
+        print(n)

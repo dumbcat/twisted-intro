@@ -6,10 +6,11 @@ from twisted.python import log
 
 # Normally we would import these classes from another module.
 
+
 class PoetryProtocol(Protocol):
 
     def connectionMade(self):
-        poem = self.factory.service.poem
+        poem = self.factory.service.poem.encode()
         log.msg('sending %d bytes of poetry to %s'
                 % (len(poem), self.transport.getPeer()))
         self.transport.write(poem)
